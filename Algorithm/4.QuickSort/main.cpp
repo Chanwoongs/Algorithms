@@ -11,7 +11,7 @@ int Partition(int* array, int left, int right)
     ++left;
 
     // 두 인덱스가 서로 교차할 때 까지 진행.
-    while (left < right)
+    while (left <= right)
     {
         // left는 pivot보다 큰 값 검색.
         while (array[left] <= pivot)
