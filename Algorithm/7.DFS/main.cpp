@@ -18,16 +18,8 @@ struct Location2D
 };
 
 // 맵 배열.
-int mapSize = 6;
-std::vector<std::vector<char>> map
-{
-    {'1','1','1','1','1','1'},
-    {'e','0','1','0','0','1'},
-    {'1','0','0','0','1','1'},
-    {'1','0','1','0','1','1'},
-    {'1','0','1','0','0','x'},
-    {'1','1','1','1','1','1'}
-};
+int mapSize = 0;
+std::vector<std::vector<char>> map;
 
 // 이동 가능 여부 판단 함수.
 bool IsValidLocation(int row, int col)
@@ -59,9 +51,58 @@ void FindStartLocation(int& row, int& col)
     }
 }
 
+bool ParseMap(const char* path)
+{
+    FILE* file = nullptr;
+    fopen_s(&file, path, "rb");
+
+    int mapIndex = 0;
+    char buffer[256];
+    int mapSize = 0;
+    int row = 0, col = 0;
+
+    if (file != nullptr)
+    {
+        fscanf_s(file, "%s %d\n", buffer, 256, &mapSize);
+
+        map.resize(mapSize);
+        for (int i = 0; i < mapSize; i++)
+        {
+            map[i].resize(mapSize);
+        }
+
+        while (!feof(file))
+        {
+            col = 0;
+            fgets(buffer, 256, file);
+            char* remain = nullptr;
+            char* token = strtok_s(buffer, ",", &remain);
+
+            map[row][col++] = token[0];
+
+            while (token != NULL)
+            {
+                token = strtok_s(nullptr, ",", &remain);
+                if (token != NULL)
+                {
+                    map[row][col++] = token[0];
+                }
+            }
+            row++;
+        }
+    }
+
+    return false;
+}
+
 // 미로 탈출 함수.
 void EscapeMaze()
 {
+    ParseMap("../Assets/Map.txt");
+
+    // 맵 크기 확인.
+    mapSize = (int)map[0].size();
+
     // 위치 저장을 위한 변수 선언.
     int row = 0;
     int col = 0;
@@ -84,7 +125,7 @@ void EscapeMaze()
 
         // 탐색 위치 출력.
         std::cout << "(" << current.row << ", " << current.col << ") ";
-        
+
         // 탈출 조건 확인
         if (map[current.row][current.col] == 'x')
         {
