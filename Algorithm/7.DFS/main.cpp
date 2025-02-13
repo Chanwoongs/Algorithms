@@ -51,7 +51,7 @@ void FindStartLocation(int& row, int& col)
     }
 }
 
-bool ParseMap(const char* path)
+bool ParseMap1(const char* path)
 {
     FILE* file = nullptr;
     fopen_s(&file, path, "rb");
@@ -95,13 +95,68 @@ bool ParseMap(const char* path)
     return false;
 }
 
+bool ParseMap2(const char* path)
+{
+    FILE* file = nullptr;
+    fopen_s(&file, path, "rb");
+
+    if (file)
+    {
+        // 첫 줄 읽기.
+        char buffer[256] = {};
+        if (!fgets(buffer, 256, file))
+        {
+            fclose(file);
+            return false;
+        }
+
+        // 맵 사이즈.
+        sscanf_s(buffer, "size %d", &mapSize);
+
+        // 줄 데이터 저장을 위한 심시 배열 선언.
+        std::vector<char> line;
+        line.reserve(mapSize);
+
+        // 맵 데이터 해석을 위한 루프.
+        while (fgets(buffer, 256, file))
+        {
+            // 첫칸 처리.
+            char* context = nullptr;
+            char* splitString = strtok_s(buffer, ",", &context);
+            if (splitString)
+            {
+                line.emplace_back(splitString[0]);
+            }
+
+            // 둘째 부터는 루프.
+            while (context)
+            {
+                splitString = strtok_s(nullptr, ",", &context);
+                if (!splitString)
+                {
+                    break;
+                }
+
+                line.emplace_back(splitString[0]);
+;           }
+            // context가 nullptr일 때는 buffer를 넣어주고,
+            // context가 있을 땐 nullptr을 넣어준다.
+
+            map.emplace_back(line);
+            line.clear();
+        }
+
+        fclose(file);
+        return true;
+    }
+
+    return false;
+}
+
 // 미로 탈출 함수.
 void EscapeMaze()
 {
-    ParseMap("../Assets/Map.txt");
-
-    // 맵 크기 확인.
-    mapSize = (int)map[0].size();
+    ParseMap2("../Assets/Map.txt");
 
     // 위치 저장을 위한 변수 선언.
     int row = 0;
