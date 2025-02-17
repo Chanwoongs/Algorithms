@@ -137,3 +137,85 @@ void RedBlackTree::InsertRecursive(Node* node, Node* newNode)
 void RedBlackTree::RestructureAfterInsert(Node* newNode)
 {
 }
+
+void RedBlackTree::RotateToLeft(Node* node)
+{
+    // 오른쪽 자식 노드.
+    Node* right = node->Right();
+
+    // 오른쪽 자식 노드의 왼쪽 자식 노드를 부모의 오른쪽 자식으로 등록.
+    node->SetRight(right->Left());
+
+    // 하위 노드의 부모 변경 처리.
+    if (right->Left() != Nil)
+    {
+        right->Left()->SetParent(node);
+    }
+
+    // 오른쪽 자식 노드의 부모를 부모의 부모(조부모)로 설정.
+    right->SetParent(node->Parent());
+    
+    // 부모가 root인 경우.
+    if (right->Parent() == nullptr)
+    {
+        root = right;
+    }
+    // root가 아닐 때.
+    else
+    {
+        // 조부모 기준 원래의 자식 위치로 복구.
+        if (node == node->Parent()->Left())
+        {
+            node->Parent()->SetLeft(right);
+        }
+        else
+        {
+            node->Parent()->SetRight(right);
+        }
+    }
+
+    // 좌회전 마무리.
+    right->SetLeft(node);
+    node->SetParent(right);
+}
+
+void RedBlackTree::RotateToRight(Node* node)
+{
+    // 왼쪽 자식 노드.
+    Node* left = node->Left();
+
+    // 왼쪽 자식 노드의 오른쪽 자식 노드를 부모의 왼쪽 자식으로 등록.
+    node->SetLeft(left->Right());
+
+    // 하위 노드의 부모 변경 처리.
+    if (left->Right() != Nil)
+    {
+        left->Right()->SetParent(node);
+    }
+
+    // 왼쪽 자식 노드의 부모를 부모의 부모(조부모)로 설정.
+    left->SetParent(node->Parent());
+
+    // 부모가 root인 경우.
+    if (left->Parent() == nullptr)
+    {
+        root = left;
+    }
+    // root가 아닐 때.
+    else
+    {
+        // 조부모 기준 원래의 자식 위치로 복구.
+        if (node == node->Parent()->Left())
+        {
+            node->Parent()->SetLeft(left);
+        }
+        else
+        {
+            node->Parent()->SetRight(left);
+        }
+    }
+
+    // 좌회전 마무리.
+    left->SetRight(node);
+    node->SetParent(left);
+}
