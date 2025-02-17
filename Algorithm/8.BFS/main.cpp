@@ -18,19 +18,11 @@ struct Location
 };
 
 // 맵 선언.
-int mazeSize = 6;
-char startMark = 'e';
-char destinationMark = 'x';
+int mazeSize = 0;
+char startMark = ' ';
+char destinationMark = ' ';
 
-std::vector<std::vector<char>> map = 
-{
-    {'1','1','1','1','1','1'},
-    {'e','0','1','0','0','1'},
-    {'1','0','0','0','1','1'},
-    {'1','0','1','0','1','1'},
-    {'1','0','1','0','0','x'},
-    {'1','1','1','1','1','1'}
-};
+std::vector<std::vector<char>> map;
 
 // 이동하려는 위치가 이동 가능한 위치인지 확인하는 함수.
 bool IsValid(int row, int col)
@@ -67,6 +59,147 @@ void FindStartLocation(int& row, int& col)
     }
 }
 
+bool ParseMap1(const char* path, char& startMark, char& destionationMark)
+{
+    FILE* file = nullptr;
+    fopen_s(&file, path, "rt");
+
+    if (file != nullptr)
+    {
+        char strBuffer[256];
+        char s, d;
+        fgets(strBuffer, 256, file);
+
+        sscanf_s(strBuffer, "size: %d start: %c destination: %c", &mazeSize, &s, 1, &d, 1);
+        startMark = s;
+        destinationMark = d;
+
+        map.resize(mazeSize);
+        for (int i = 0; i < mazeSize; i++)
+        {
+            map[i].resize(mazeSize);
+        }
+
+        char mazeBuffer[256];
+        size_t size = fread_s(mazeBuffer, 256, sizeof(char), 256, file);
+        int j = 0;
+        for (size_t i = 0; i < size; i++)
+        {
+            if (mazeBuffer[i] == '\r' || mazeBuffer[i] == '\n' || mazeBuffer[i] == ',')
+            {
+                continue;
+            }
+
+            map[j / mazeSize][j % mazeSize] = mazeBuffer[i];
+            j++;
+        }
+    }
+    else
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool ParseMap2(const char* path, char& startMark, char& destionationMark)
+{
+    FILE* file = nullptr;
+    fopen_s(&file, path, "rb");
+
+    if (file != nullptr)
+    {
+        // 첫 줄 읽기
+        char strBuffer[256];
+        char s, d;
+        fgets(strBuffer, 256, file);
+
+        sscanf_s(strBuffer, "size: %d start: %c destination: %c", &mazeSize, &s, 1, &d, 1);
+        startMark = s;
+        destinationMark = d;
+
+        char mazeBuffer[2048];
+
+        // 줄 데이터 저장을 위한 임시 배열 선언.
+        std::vector<std::string> lines;
+        lines.reserve(mazeSize);
+
+        // 첫 줄을 제외한 나머지 데이터를 한 번에 읽기.
+        // 파일의 현재 위치.
+        auto currentPosition = ftell(file);
+        // 마지막 위치로 이동.
+        fseek(file, 0, SEEK_END);
+        // 위치 저장.
+        auto endPosition = ftell(file);
+        // 크기 계산.
+        int size = (int)(endPosition - currentPosition);
+        // rewind.
+        fseek(file, currentPosition, SEEK_SET);
+
+        // 나머지 읽기.
+        fread_s(mazeBuffer, 2048, size, 1, file);
+
+        // 라인 파싱.
+        char* context = nullptr;
+        char* splitString = strtok_s(mazeBuffer, "\n", &context);
+        if (splitString)
+        {
+            lines.emplace_back(splitString);
+        }
+
+        while (context)
+        {
+            splitString = strtok_s(nullptr, "\n", &context);
+            if (!splitString)
+            {
+                break;
+            }
+
+            lines.emplace_back(splitString);
+        }
+
+        // 라인별 파싱 데이터 저장.
+        std::vector<char> line;
+        line.reserve(mazeSize);
+
+        // 재사용을 위한 null 설정.
+        context = nullptr;
+        splitString = nullptr;
+
+        // 라인 배열을 순회하면서 파싱 처리.
+        for (auto& ele : lines)
+        {
+            // 재사용을 위한 null 설정.
+            context = nullptr;
+
+            // 첫 칸 처리.
+            splitString = strtok_s(const_cast<char*>(ele.c_str()), ",", &context);
+            if (splitString)
+            {
+                line.emplace_back(splitString[0]);
+            }
+
+            // 두번째 칸부터는 루프.
+            while (context)
+            {
+                splitString = strtok_s(nullptr, ",", &context);
+                if (!splitString)
+                {
+                    break;
+                }
+
+                line.emplace_back(splitString[0]);
+            }
+
+            // 처리된 라인 데이터 맵에 추가.
+            map.emplace_back(line);
+            line.clear();
+        }
+    }
+
+    return true;
+}
+
 void EscapeMaze()
 {
     // 시작 위치.
@@ -93,7 +226,6 @@ void EscapeMaze()
         if (map[current.row][current.col] == destinationMark)
         {
             std::cout << "\n미로 탐색 성공\n";
-            return;
         }
 
         // 방문한 위치를 다른 문자로 설정.
@@ -125,7 +257,11 @@ void EscapeMaze()
 
 int main()
 {
-    EscapeMaze();
+    // 맵 파싱.
+    if (ParseMap1("../Assets/Map2.txt", startMark, destinationMark))
+    {
+        EscapeMaze();
+    }
 
     return 0;
 }
