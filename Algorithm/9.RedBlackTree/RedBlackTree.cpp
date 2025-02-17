@@ -136,6 +136,84 @@ void RedBlackTree::InsertRecursive(Node* node, Node* newNode)
 
 void RedBlackTree::RestructureAfterInsert(Node* newNode)
 {
+    // 부모 노드가 빨간색인 경우 (Red-Red Conflict).
+    while (newNode != root && newNode->Parent()->GetColor() == Color::Red)
+    {
+        // 삼촌 구하기.
+        if (newNode->Parent() == newNode->Parent()->Parent()->Left())
+        {
+            // 삼촌.
+            Node* uncle = newNode->Parent()->Parent()->Right();
+
+            // 삼촌 노드가 빨간색 일때 (Case 1).
+            // 해결: 부모와 삼촌을 Black, 할아버지를 Red로 변경 후, 할아버지 기준으로 다시 검사.
+            if (uncle->GetColor() == Color::Red)
+            {
+                newNode->Parent()->SetColor(Color::Black);
+                uncle->Parent()->SetColor(Color::Black);
+                newNode->Parent()->Parent()->SetColor(Color::Red);
+
+                newNode = newNode->Parent()->Parent();
+
+                continue;
+            }
+
+            // 삼촌이 검정색일 때.
+            // 해결: 부모를 Black, 할아버지를 Red로 변경 후, 할아버지를 기준으로 회전.
+            // Case 2 / Case 3.
+            // Case 2: 지그재그 형태. 부모의 위치와 나의 위치가 반대(일직선으로 변경 후 Case 3 처리).
+            if (newNode == newNode->Parent()->Right())
+            {
+                // 부모를 중심으로 회전 처리(일직선으로 만들기 위해).
+                newNode = newNode->Parent();
+                RotateToLeft(newNode);
+            }
+
+            // Case 3: 부모와 나의 위치가 일치할 때.
+            newNode->Parent()->SetColor(Color::Black);
+            newNode->Parent()->Parent()->SetColor(Color::Red);
+
+            RotateToRight(newNode->Parent()->Parent());
+        }
+        else
+        {
+            // 삼촌.
+            Node* uncle = newNode->Parent()->Parent()->Left();
+
+            // 삼촌 노드가 빨간색 일때 (Case 1).
+            // 해결: 부모와 삼촌을 Black, 할아버지를 Red로 변경 후, 할아버지 기준으로 다시 검사.
+            if (uncle->GetColor() == Color::Red)
+            {
+                newNode->Parent()->SetColor(Color::Black);
+                uncle->Parent()->SetColor(Color::Black);
+                newNode->Parent()->Parent()->SetColor(Color::Red);
+
+                newNode = newNode->Parent()->Parent();
+
+                continue;
+            }
+
+            // 삼촌이 검정색일 때.
+            // 해결: 부모를 Black, 할아버지를 Red로 변경 후, 할아버지를 기준으로 회전.
+            // Case 2 / Case 3.
+            // Case 2: 지그재그 형태. 부모의 위치와 나의 위치가 반대(일직선으로 변경 후 Case 3 처리).
+            if (newNode == newNode->Parent()->Left())
+            {
+                // 부모를 중심으로 회전 처리(일직선으로 만들기 위해).
+                newNode = newNode->Parent();
+                RotateToRight(newNode);
+            }
+
+            // Case 3: 부모와 나의 위치가 일치할 때.
+            newNode->Parent()->SetColor(Color::Black);
+            newNode->Parent()->Parent()->SetColor(Color::Red);
+
+            RotateToLeft(newNode->Parent()->Parent());
+        }
+    }
+
+    // 루트 노드는 블랙.
+    root->SetColor(Color::Black);
 }
 
 void RedBlackTree::RotateToLeft(Node* node)
