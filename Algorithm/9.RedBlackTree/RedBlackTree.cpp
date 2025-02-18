@@ -317,3 +317,88 @@ void RedBlackTree::DestroyRecursive(Node* node)
 
     SafeDelete(node);
 }
+
+void RedBlackTree::Print(int depth, int blackCount)
+{
+    PrintRecursive(root, depth, blackCount);
+}
+
+void RedBlackTree::PrintRecursive(Node* node, int depth, int blackCount)
+{
+    // 탈출 조건.
+    if (node == Nil)
+    {
+        return;
+    }
+
+    // 노드 색상이 검정이면 blackCount 증가.
+    if (node->GetColor() == Color::Black) 
+    {
+        ++blackCount;
+    }
+    
+    // 부모 표기 문자열 설정.
+    int parentData = 0;
+    const char* position = "Root";
+
+    // 부모 노드가 있는지 확인.
+    if (node->Parent())
+    {
+        // 부모 노드의 데이터 저장.
+        parentData = node->Parent()->Data();
+
+        // 부모 노드의 위치.
+        if (node == node->Parent()->Left())
+        {
+            position = "Left";
+        }
+        else
+        {
+            position = "Right";
+        }
+    }
+
+    // 검은색 출력을 위한 문자열.
+    char blackCountString[50] = { };
+
+    // 자손이 없으면 현재까지의 검은색 노드 수 설정.
+    if (node->Left() == Nil && node->Right() == Nil)
+    {
+        sprintf_s(blackCountString, "------ %d", blackCount);
+    }
+
+    // Depth 출력.
+    for (int i = 0; i < depth; i++)
+    {
+        std::cout << "  ";
+    }
+
+    // 노드 색상에 따른 콘솔 설정.
+    if (node->GetColor() == Color::Red)
+    {
+        SetTextColor(TextColor::Red);
+    }
+    else
+    {
+        SetTextColor(TextColor::White);
+    }
+
+    // 현재 노드 값 출력.
+    std::cout
+        << node->Data() << " " << node->ColorString()
+        << " [" << position << ", " << parentData << "] "
+        << blackCountString << '\n';
+
+    // 노드를 출력한 뒤에는 콘솔 원래대로.
+    SetTextColor(TextColor::White);
+
+    // 하위 노드 출력.
+    PrintRecursive(node->Left(), depth + 1, blackCount);
+    PrintRecursive(node->Right(), depth + 1, blackCount);
+}
+
+void SetTextColor(TextColor color)
+{
+    static HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(console, (int)color);
+}

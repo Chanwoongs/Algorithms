@@ -97,8 +97,8 @@ void ProcessCommand(int commandInput, RedBlackTree& tree)
     if (command == Command::Print)
     {
         ClearScreen();
+        tree.Print();
 
-        // @TODO: 트리 출력 처리.
         return;
     }
 

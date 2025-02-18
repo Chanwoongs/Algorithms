@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <Windows.h>
 
 #include "Node.h"
 
@@ -17,6 +18,9 @@ public:
 
     // 노드 추가 함수.
     bool Insert(int data);
+
+    // 노드 출력 함수.
+    void Print(int depth = 0, int blackCount = 0);
 
 private:
     // 노드 생성 함수.
@@ -44,6 +48,9 @@ private:
 
     // 삭제 함수.
     void DestroyRecursive(Node* node);
+
+    // 출력 재귀 함수.
+    void PrintRecursive(Node* node, int depth = 0, int blackCount = 0);
     
 private:
     // 루트 노드.
@@ -52,3 +59,15 @@ private:
     // NIL 노드.
     static Node* Nil;
 };
+
+// 콘솔 텍스트 색상 열거형.
+enum class TextColor
+{
+    Red = FOREGROUND_RED,
+    Green = FOREGROUND_GREEN,
+    Blue = FOREGROUND_BLUE,
+    White = Red | Green | Blue
+};
+
+// 콘솔 텍스트 색상 설정 함수.
+void SetTextColor(TextColor color);
