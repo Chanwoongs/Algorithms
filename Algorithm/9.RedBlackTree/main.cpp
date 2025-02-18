@@ -127,7 +127,31 @@ void ProcessCommand(int commandInput, RedBlackTree& tree)
         } break;
         case Command::Find:
         { 
-            // @Todo:
+            ClearScreen();
+
+            // 검색.
+            Node* result = nullptr;
+            // 검색 실패.
+            if (!tree.Find(param, &result))
+            {
+                std::cout << "노드를 찾지 못했습니다. (검색 값: " << param << ")\n";
+            }
+
+            // 노드 색상에 따른 콘솔 텍스트 색상 설정.
+            if (result->GetColor() == Color::Red)
+            {
+                SetTextColor(TextColor::Red);
+            }
+            else
+            {
+                SetTextColor(TextColor::White);
+            }
+
+            // 검색 결과 출력.
+            std::cout << "검색된 노드: " << result->Data() << "(Color: " << result->ColorString() << ")\n";
+
+            // 콘솔 텍스트 복구.
+            SetTextColor(TextColor::White);
         } break;
     }
 }
