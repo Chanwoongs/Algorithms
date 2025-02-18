@@ -123,7 +123,9 @@ void ProcessCommand(int commandInput, RedBlackTree& tree)
         } break;
         case Command::Delete:
         {
-            // @Todo:
+            ClearScreen();
+
+            tree.Remove(param);
         } break;
         case Command::Find:
         { 

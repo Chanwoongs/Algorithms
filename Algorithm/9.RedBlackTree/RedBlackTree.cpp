@@ -83,7 +83,17 @@ bool RedBlackTree::Insert(int data)
 
 void RedBlackTree::Remove(int data)
 {
-    // TODO
+    // 삭제할 노드 검색에 실패하면 삭제 실패.
+    Node* deleted = nullptr;
+    if (!Find(data, &deleted))
+    {
+        std::cout << "오류: 노드 삭제 실패. 삭제할 노드를 찾지 못했습니다. (검색 값: " << data << ")\n";
+
+        return;
+    }
+
+    // 삭제 진행.
+    RemoveImpl(deleted);
 }
 
 void RedBlackTree::Insert(Node* newNode)
@@ -329,7 +339,7 @@ Node* RedBlackTree::FindMaxRecursive(Node* node)
         return nullptr;
     }
 
-    // 왼쪽 하위 노드가 더 이상 없으면 현재 노드 반환.
+    // 오른쪽 하위 노드가 더 이상 없으면 현재 노드 반환.
     if (node->Right() == Nil)
     {
         return node;
@@ -338,6 +348,84 @@ Node* RedBlackTree::FindMaxRecursive(Node* node)
     return FindMaxRecursive(node->Right());
 }
 
+void RedBlackTree::RemoveImpl(Node* node)
+{
+    // 삭제 대상 노드.
+    Node* removed = nullptr;
+
+    // 삭제할 위치의 대체 노드.
+    Node* trail = Nil;
+
+    Node* target = node;
+
+    // 자손이 하나 이하인 경우.
+    if (target->Left() == Nil || target->Right() == Nil)
+    {
+        removed = target;
+    }
+
+    // 자손이 모두 있는 경우.
+    else
+    {
+        // 대체할 노드 검색.
+        // (왼쪽 하위 트리에서 가장 큰값을 대체 노드로 설정).
+        removed = FindMaxRecursive(target->Left());
+
+        // 대체 노드가 존재하면 해당 데이터 설정.
+        //if (removed != nullptr && removed != Nil)
+        //{
+        //    // 현재 노드의 값을 대상 노드의 값으로 변경.
+        //    target->SetData(removed->Data());
+        //}
+
+        // 현재 노드의 값을 대상 노드의 값으로 변경.
+        target->SetData(removed->Data());
+    }
+
+    // 자손이 하나만 있을 때.
+    if (node->Left() != Nil && node->Right() == Nil)
+    {
+        trail = node->Left();
+    }
+    else if (node->Right() != Nil && node->Left() == Nil)
+    {
+        trail = node->Right();
+    }
+
+    // 대상 노드가 있는 경우.
+    if (trail != Nil /*&& trail != nullptr*/)
+    {
+        trail->SetParent(removed->Parent());
+    }
+
+    // removed 노드가 root인 경우.
+    if (removed->Parent() == nullptr)
+    {
+        root = trail;
+    }
+    // root가 아닐 때.
+    else
+    {
+        // trail 노드를 removed의 원래 위치로 설정.
+        if (removed == removed->Parent()->Left())
+        {
+            removed->Parent()->SetLeft(trail);
+        }
+        else
+        {
+            removed->Parent()->SetRight(trail);
+        }
+    }
+
+    // 재정렬 여부 확인후 진행.
+    if (removed->GetColor() == Color::Black && trail != Nil)
+    {
+        // 재정렬 진행.
+    }
+
+    // 노드 삭제.
+    SafeDelete(removed);
+}
 void RedBlackTree::DestroyRecursive(Node* node)
 {
     // 재귀 탈출 조건.

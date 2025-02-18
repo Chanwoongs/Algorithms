@@ -55,6 +55,9 @@ private:
     // 트리에서 최댓값을 가진 노드를 검색하는 함수.
     Node* FindMaxRecursive(Node* node);
 
+    // 노드 삭제 함수.
+    void RemoveImpl(Node* node);
+
     // 삭제 함수.
     void DestroyRecursive(Node* node);
 
