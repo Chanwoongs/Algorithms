@@ -19,6 +19,9 @@ public:
     // 노드 추가 함수.
     bool Insert(int data);
 
+    // 노드 삭제 함수.
+    void Remove(int data);
+
     // 노드 출력 함수.
     void Print(int depth = 0, int blackCount = 0);
 
@@ -45,6 +48,12 @@ private:
     // 우회전 함수.
     // node: 회전의 기준점(pivot).
     void RotateToRight(Node* node);
+
+    // 트리에서 최솟값을 가진 노드를 검색하는 함수.
+    Node* FindMinRecursive(Node* node);
+
+    // 트리에서 최댓값을 가진 노드를 검색하는 함수.
+    Node* FindMaxRecursive(Node* node);
 
     // 삭제 함수.
     void DestroyRecursive(Node* node);

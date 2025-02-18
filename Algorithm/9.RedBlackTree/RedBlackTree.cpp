@@ -81,6 +81,11 @@ bool RedBlackTree::Insert(int data)
     return true;
 }
 
+void RedBlackTree::Remove(int data)
+{
+    // TODO
+}
+
 void RedBlackTree::Insert(Node* newNode)
 {
     // 트리가 비어있는 경우, 루트로 설정.
@@ -297,6 +302,40 @@ void RedBlackTree::RotateToRight(Node* node)
     // 좌회전 마무리.
     left->SetRight(node);
     node->SetParent(left);
+}
+
+Node* RedBlackTree::FindMinRecursive(Node* node)
+{
+    // 탈출 조건.
+    if (node == Nil)
+    {
+        return nullptr;
+    }
+
+    // 왼쪽 하위 노드가 더 이상 없으면 현재 노드 반환.
+    if (node->Left() == Nil)
+    {
+        return node;
+    }
+
+    return FindMinRecursive(node->Left());
+}
+
+Node* RedBlackTree::FindMaxRecursive(Node* node)
+{
+    // 탈출 조건.
+    if (node == Nil)
+    {
+        return nullptr;
+    }
+
+    // 왼쪽 하위 노드가 더 이상 없으면 현재 노드 반환.
+    if (node->Right() == Nil)
+    {
+        return node;
+    }
+
+    return FindMaxRecursive(node->Right());
 }
 
 void RedBlackTree::DestroyRecursive(Node* node)
