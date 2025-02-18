@@ -232,6 +232,130 @@ void RedBlackTree::RestructureAfterInsert(Node* newNode)
     root->SetColor(Color::Black);
 }
 
+void RedBlackTree::RestructureAfterRemove(Node* node)
+{
+    // 더블 블랙 문제 해결
+    while (node->Parent() != nullptr && node->GetColor() == Color::Black)
+    {
+        // 형제 노드 구하기
+        if (node == node->Parent()->Left())
+        {
+            Node* sibling = node->Parent()->Right();
+            if (sibling == Nil)
+            {
+                break;
+            }
+
+            // Case 1 : 형제 노드가 Red
+            // 해결 : 형제 노드를 Black으로 변경하고, 부모를 Red로 바꾼 후 부모 기준으로 좌회전 또는 우회전
+            if (sibling->GetColor() == Color::Red)
+            {
+                sibling->SetColor(Color::Black);
+                node->Parent()->SetColor(Color::Red);
+
+                // 좌회전
+                RotateToLeft(node->Parent());
+                continue;
+            }
+
+            // Case 2 : 형제와 형제의 두 자식이 모두 Black
+            // 해결 : 형제 노드를 Red로 변경하여 Black Height를 줄이고, 부모를 새로운 노드로 설정 후 다시 검사
+            if (sibling->Left()->GetColor() == Color::Black && sibling->Right()->GetColor() == Color::Black)
+            {
+                sibling->SetColor(Color::Red);
+                node = node->Parent();
+                continue;
+            }
+
+            // Case 3 : 형제 노드는 Black, 형제의 한쪽 자식만 Red(왼쪽이 Red)
+            // 해결 : 형제의 왼쪽 자식을 Black으로 변경, 형제를 Red로 변경 후 형제 기준 우회전
+            if (sibling->Left()->GetColor() == Color::Red)
+            {
+                sibling->Left()->SetColor(Color::Black);
+                sibling->SetColor(Color::Red);
+
+                // 우회전
+                RotateToRight(sibling);
+
+                // 회전 후 형제 위치 업데이트
+                sibling = node->Parent()->Right();
+            }
+
+            // Case 4 : 형제 노드는 Black, 형제의 오른쪽 자식이 Red
+            // 해결 : 형제를 부모와 같은 색으로 설정, 부모를 Black으로 변경, 
+            // 형제의 오른쪽 자식을 Black으로 변경 후 부모 기준 좌회전
+            if (sibling->Right()->GetColor() == Color::Red)
+            {
+                sibling->SetColor(sibling->Parent()->GetColor());
+                sibling->Parent()->SetColor(Color::Black);
+                sibling->Right()->SetColor(Color::Black);
+                RotateToLeft(node->Parent());
+            }
+
+            continue;
+        }
+        else
+        {
+            Node* sibling = node->Parent()->Left();
+            if (sibling == Nil)
+            {
+                break;
+            }
+
+            // Case 1 : 형제 노드가 Red
+            // 해결 : 형제 노드를 Black으로 변경하고, 부모를 Red로 바꾼 후 부모 기준으로 좌회전 또는 우회전
+            if (sibling->GetColor() == Color::Red)
+            {
+                sibling->SetColor(Color::Black);
+                node->Parent()->SetColor(Color::Red);
+
+                // 좌회전
+                RotateToRight(node->Parent());
+                continue;
+            }
+
+            // Case 2 : 형제와 형제의 두 자식이 모두 Black
+            // 해결 : 형제 노드를 Red로 변경하여 Black Height를 줄이고, 부모를 새로운 노드로 설정 후 다시 검사
+            if (sibling->Left()->GetColor() == Color::Black && sibling->Right()->GetColor() == Color::Black)
+            {
+                sibling->SetColor(Color::Red);
+                node = node->Parent();
+                continue;
+            }
+
+            // Case 3 : 형제 노드는 Black, 형제의 한쪽 자식만 Red(오른쪽이 Red)
+            // 해결 : 형제의 오른쪽 자식을 Black으로 변경, 형제를 Red로 변경 후 형제 기준 좌회전
+            if (sibling->Right()->GetColor() == Color::Red)
+            {
+                sibling->Right()->SetColor(Color::Black);
+                sibling->SetColor(Color::Red);
+
+                // 좌회전
+                RotateToLeft(sibling);
+
+                // 회전 후 형제 위치 업데이트
+                sibling = node->Parent()->Left();
+            }
+
+            // Case 4 : 형제 노드는 Black, 형제의 오른쪽 자식이 Red
+            // 해결 : 형제를 부모와 같은 색으로 설정, 부모를 Black으로 변경, 
+            // 형제의 오른쪽 자식을 Black으로 변경 후 부모 기준 좌회전
+            if (sibling->Left()->GetColor() == Color::Red)
+            {
+                sibling->SetColor(sibling->Parent()->GetColor());
+                sibling->Parent()->SetColor(Color::Black);
+                sibling->Left()->SetColor(Color::Black);
+                RotateToRight(node->Parent());
+            }
+
+            continue;
+        }
+    }
+
+    // 루트 노드 블랙
+    root->SetColor(Color::Black);
+}
+
 void RedBlackTree::RotateToLeft(Node* node)
 {
     // 오른쪽 자식 노드.
@@ -421,6 +545,7 @@ void RedBlackTree::RemoveImpl(Node* node)
     if (removed->GetColor() == Color::Black && trail != Nil)
     {
         // 재정렬 진행.
+        RestructureAfterRemove(trail);
     }
 
     // 노드 삭제.

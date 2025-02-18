@@ -41,6 +41,9 @@ private:
     // 노드 삽입 후 재정렬을 처리하는 함수.
     void RestructureAfterInsert(Node* newNode);
 
+    // 노드 삭제 후 재정렬 처리 함수.
+    void RestructureAfterRemove(Node* node);
+
     // 좌회전 함수.
     // node: 회전의 기준점(pivot).
     void RotateToLeft(Node* node);
