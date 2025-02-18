@@ -23,7 +23,8 @@ RedBlackTree::RedBlackTree()
 
 RedBlackTree::~RedBlackTree()
 {
-    // @TODO: 모든 노드 삭제.
+    DestroyRecursive(root);
+    SafeDelete(Nil);
 }
 
 bool RedBlackTree::Find(int data, Node** outNode)
@@ -296,4 +297,23 @@ void RedBlackTree::RotateToRight(Node* node)
     // 좌회전 마무리.
     left->SetRight(node);
     node->SetParent(left);
+}
+
+void RedBlackTree::DestroyRecursive(Node* node)
+{
+    // 재귀 탈출 조건.
+    if (node == Nil)
+    {
+        return;
+    }
+
+    // 왼쪽/오른쪽 자손.
+    Node* left = node->Left();
+    Node* right = node->Right();
+
+    // 자식이 있는 경우.
+    DestroyRecursive(left);
+    DestroyRecursive(right);
+
+    SafeDelete(node);
 }

@@ -42,6 +42,9 @@ private:
     // node: 회전의 기준점(pivot).
     void RotateToRight(Node* node);
 
+    // 삭제 함수.
+    void DestroyRecursive(Node* node);
+    
 private:
     // 루트 노드.
     Node* root = nullptr;
