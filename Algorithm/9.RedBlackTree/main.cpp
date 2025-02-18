@@ -105,7 +105,7 @@ void ProcessCommand(int commandInput, RedBlackTree& tree)
     // 프로그램 종료.
     if (command == Command::Quit)
     {
-        exit(0);
+        return;
     }
 
     // 1, 2, 3 명령 처리 (파라미터 입력이 추가로 필요함).
@@ -147,5 +147,11 @@ int main()
 
         // 명령 처리.
         ProcessCommand(commandInput, tree);
+
+        // 종료 처리.
+        if (commandInput == (int)Command::Quit)
+        {
+            break;
+        }
     }
 }
