@@ -353,7 +353,7 @@ void RedBlackTree::RestructureAfterRemove(Node* node)
     }
 
     // 루트 노드 블랙
-    root->SetColor(Color::Black);
+    node->SetColor(Color::Black);
 }
 
 void RedBlackTree::RotateToLeft(Node* node)
